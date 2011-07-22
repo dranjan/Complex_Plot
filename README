@@ -1,0 +1,18 @@
+This is an attempt to develop reusable tools for rendering planar "color
+maps" (functions that assign to each point on the plane a color)
+generally and those related to transformations of the complex plane
+(including some popular fractals) specifically. 
+
+Minimum requirements:
+- g++
+- SDL
+- SCons
+
+See the file SConstruct to see which programs can be built. 
+
+Most of the programs support zooming (mouse middle-click), but not all
+(in particular, mandel_ext). This is unfortunately rather slow.
+
+To run mandel_ext, after the first picture is drawn, press "f" (with the
+SDL window active). This will make a plot showing the external angle as
+hue. 

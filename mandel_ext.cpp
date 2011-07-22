@@ -107,9 +107,11 @@ protected:
             color c = basic_colormap(exp(z));
             double s = 0;
 
-            if (abs(z.imag() - theta) <= 0.01) {
-                s = (0.01 - abs(z.imag() - theta))/0.01;
-            }
+            if (!isnan(theta)) {
+                if (abs(z.imag() - theta) <= 0.002) {
+                    s = (0.002 - abs(z.imag() - theta))/0.002;
+                }
+            } 
 
             return c*(1-s);
 
