@@ -78,7 +78,11 @@ protected:
                 double u = arg(z);
                 double v = div_angle(arg(f(c, f(c, z))), 4, u);
 
-                r.imag() = v; //fix_angle(v - repdbl(theta, n));
+                if (!isnan(theta)) {
+                    r.imag() = fix_angle(v - repdbl(theta, n));
+                } else {
+                    r.imag() = v;
+                }
                 break;
             }
 
@@ -108,8 +112,9 @@ protected:
             double s = 0;
 
             if (!isnan(theta)) {
-                if (abs(z.imag() - theta) <= 0.002) {
-                    s = (0.002 - abs(z.imag() - theta))/0.002;
+                double diff = abs(fix_angle(z.imag() - theta));
+                if (diff <= 0.002) {
+                    s = (0.002 - diff)/0.002;
                 }
             } 
 
@@ -119,8 +124,8 @@ protected:
             if (isnan(z.imag())) {
                 return RGBcolor(1.0, 1.0, 1.0);
             } else {
-                //z.real() = ceil(z.real());
-                double r = 1-1.0/sqrt(log2(z.real()+2.5));
+                z.real() = ceil(z.real());
+                double r = 1-1.0/sqrt(log2(z.real()+1.0));
                 if (z.imag() > 0) return RGBcolor(r, r, r);
                 else return RGBcolor(1-0.5*(1-r), r, 1);
             }
@@ -235,11 +240,46 @@ protected:
     virtual void mousebuttondown_event(SDL_MouseButtonEvent & button) {
         Uint16 x = button.x;
         Uint16 y = button.y;
-        
+                
         cplx c = to_plane(x+0.5, y+0.5);
 
         if (verbosity > 0) {
             cout << c << endl;
+        }
+
+        if (fixed) {
+            int xs = x*sres;
+            int ys = y*sres;
+
+            double t = 0;
+            int samples = 0;
+
+            for (int dx = 0; dx < sres; ++dx) {
+                for (int dy = 0; dy < sres; ++dy) {
+                    int x1 = xs + dx;
+                    int y1 = ys + dy;
+
+                    cplx u = index(x1, y1);
+
+                    if (!isnan(u.imag())) {
+                        ++samples;
+                        t += u.imag();
+                    }
+                }
+            }
+
+            if (samples > 0) {
+                theta = t/samples;
+                if (verbosity > 0) {
+                    cout << "Angle " << theta << endl;
+                }
+
+                /* This is annoyingly slow; it would be better
+                 * to just redraw the parts we need rather than
+                 * redoing the whole plot.
+                 */
+                replot();
+            }
         }
     }
 
@@ -275,10 +315,10 @@ public:
 
     mandel_ext(bool b = true) {
         if (b) {
-            init(300, 10, 1e-10, M_PI/3);
+            init(300, 10, 1e-10, NAN);
             set_window(4, 3, 300, -0.5);
 
-            set_title("??? Mandelbrot");
+            set_title("Mandelbrot set with external angles");
             bmp_name = "mandel_ext01.bmp";
 
             compute(3);

@@ -196,12 +196,14 @@ protected:
         return 0;
     }
 
-    void replot() {
+    void replot(bool blackout=true) {
         working = false;
         SDL_WaitThread(plot_thread, 0);
         SDL_KillThread(update_thread);
 
-        set_rect(0, 0, screen->w, screen->h, 0, 0, 0);
+        if (blackout) {
+            set_rect(0, 0, screen->w, screen->h, 0, 0, 0);
+        }
         update();
 
         working = true;
