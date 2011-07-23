@@ -29,7 +29,9 @@ inline double repdbl(double theta, int n) {
 /* Returns closest psi to phi such that n*psi = theta (mod 2*pi) */
 inline double div_angle(double theta, int n, double phi) {
     int m = dtoi((n*phi - theta)/(2*M_PI));
-    return (theta + 2*M_PI*m)/n;
+    return proper_angle((theta + 2*M_PI*m)/n);
 }
+
+
 
 #endif
