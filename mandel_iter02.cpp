@@ -1,6 +1,6 @@
 #include "complex_plot.hpp"
 
-class mandel_iter : public complex_plot {
+class mandel_iter02 : public complex_plot {
 protected:
     int n;
 
@@ -10,13 +10,15 @@ protected:
 
     cplx transform(cplx c) {
         cplx z(0.0);
+        cplx t(0.0);
         for (int k = 0; k < n; ++ k) {
             z = f(c, z);
+            t += 1.0/z;
             if (abs(z) >= 1e10) {
-                return z;
+                break;
             }
         }
-        return z;
+        return 1.0/t;
     }
 
     void init(int num_iter) {
@@ -24,7 +26,7 @@ protected:
     }
 
 public:
-    mandel_iter(int n = 1) {
+    mandel_iter02(int n = 1) {
         if (n >= 0) {
             init(n);
             width_set_window(1200, 900, 4, -0.5);
@@ -43,7 +45,7 @@ int main(int argc, char **argv) {
 
     try {
         int n = atoi(argv[1]);
-        (mandel_iter(n));
+        (mandel_iter02(n));
     } catch (std::string s) {
         cerr << "Error: " << s << endl;
         return 1;
