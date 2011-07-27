@@ -5,11 +5,11 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <climits>
 
-/* struct pixel_data {
-    double pre_arg;
-    cplx u;
-}; */
+extern "C" {
+#include "itinerary.h"
+}
 
 using namespace std;
 
@@ -31,8 +31,6 @@ protected:
     vector<cplx> data;
 
     bool fixed;
-
-    friend class pixel_sorter;
 
     cplx to_plane_sub(double x, double y) {
         return ul + res/sres*cplx(x, -y);
@@ -106,10 +104,17 @@ protected:
             int n = ceil(z.real());
             double r = n - z.real();
             r = n - r/safety;
-            z.real() = log(r); //pow(2, -r)*logb;
+            z.real() = log(r); 
+            //z.real() = pow(2, -n)*logb;
 
-            color c = basic_colormap(exp(z));
-            double s = 0;
+            if (!isnan(theta)) z.imag() -= theta;
+
+            z.imag() = floor(67*z.imag()/(2*M_PI))/67*2*M_PI;
+
+            //z.imag() = fix_angle(s_high(mod(z.imag()/(2*M_PI), 1))*2*M_PI);
+
+            return basic_colormap(exp(z));
+            /*double s = 0;
 
             if (!isnan(theta)) {
                 double diff = abs(fix_angle(z.imag() - theta));
@@ -118,7 +123,9 @@ protected:
                 }
             } 
 
-            return c*(1-s);
+            return RGBcolor(c.r + s - s*c.r,
+                            c.g + s - s*c.g,
+                            c.b + s - s*c.b);*/
 
         } else {
             if (isnan(z.imag())) {
@@ -181,12 +188,17 @@ protected:
 
                     int j = dw*y1 + x1;
                     
-                    if (!sample_fixed[j]) continue;
+                    if (!sample_fixed.at(j)) continue;
 
                     double phi = data[j].imag();
-                    double psi = div_angle(data[k].imag(), 
-                                           pow(2, n), phi);
-                    data[k].imag() = psi;
+                    //double r = pow(2, n);
+                    //if (r > INT_MAX) {
+                    //    data[k].imag() = data[j].imag();
+                    //} else {
+                        data[k].imag() = div_angle(data[k].imag(), 
+                                                   pow(2, n), phi);
+
+                    //}
 
                     sample_fixed[k] = true;
                     break;
@@ -203,7 +215,7 @@ protected:
                 sample_fixed[k] = true;
             }
             
-            int new_percent = 100*(k + 1)/num_samples;
+            int new_percent = 100*(i + 1)/num_samples;
             if (new_percent > percent_complete) {
                 percent_complete = new_percent;
                 if (verbosity > 0) {
@@ -219,24 +231,6 @@ protected:
         fixed = true;
     } 
 
-    void init_data(int w, int h) {
-        dw = w;
-        dh = h;
-        data.resize(w*h);
-    }
-
-    void init(int m, double b, double tol, double th) {
-        max_iter = m;
-        bailout = b;
-        logb = log(b);
-        ptol = tol;
-        theta = th;
-
-        safety = 0.618033989;
-
-        fixed = false;
-    }
-
     virtual void mousebuttondown_event(SDL_MouseButtonEvent & button) {
         Uint16 x = button.x;
         Uint16 y = button.y;
@@ -244,7 +238,7 @@ protected:
         cplx c = to_plane(x+0.5, y+0.5);
 
         if (verbosity > 0) {
-            cout << c << endl;
+            cout << x << ", " << y << " -> " << c << endl;
         }
 
         if (fixed) {
@@ -254,17 +248,24 @@ protected:
             double t = 0;
             int samples = 0;
 
-            for (int dx = 0; dx < sres; ++dx) {
-                for (int dy = 0; dy < sres; ++dy) {
+            for (int dy = 0; dy < sres; ++dy) {
+                for (int dx = 0; dx < sres; ++dx) {
                     int x1 = xs + dx;
                     int y1 = ys + dy;
 
                     cplx u = index(x1, y1);
 
+                    if (verbosity > 0) {
+                        cout << u << " ";
+                    }
+
                     if (!isnan(u.imag())) {
                         ++samples;
                         t += u.imag();
                     }
+                }
+                if (verbosity > 0) {
+                    cout << endl;
                 }
             }
 
@@ -274,11 +275,7 @@ protected:
                     cout << "Angle " << theta << endl;
                 }
 
-                /* This is annoyingly slow; it would be better
-                 * to just redraw the parts we need rather than
-                 * redoing the whole plot.
-                 */
-                replot();
+
             }
         }
     }
@@ -297,6 +294,12 @@ protected:
                     replot();
                 }
             }
+        } else if (sym == SDLK_r) {
+            /* This is annoyingly slow; it would be better
+             * to just redraw the parts we need rather than
+             * redoing the whole plot.
+             */
+            replot();
         }
     }
 
@@ -308,6 +311,24 @@ protected:
         run(sres);
     }
 
+    void init_data(int w, int h) {
+        dw = w;
+        dh = h;
+        data.resize(w*h);
+    }
+
+    void init(int m, double b, double tol, double th) {
+        max_iter = m;
+        bailout = b;
+        logb = log(b);
+        ptol = tol;
+        theta = th;
+
+        safety = 0.3;
+
+        fixed = false;
+    }
+
 public:
     mandel_ext(int m, double b, double tol, double th) {
         init(m, b, tol, th);
@@ -316,12 +337,12 @@ public:
     mandel_ext(bool b = true) {
         if (b) {
             init(300, 10, 1e-10, NAN);
-            set_window(4, 3, 300, -0.5);
+            set_window(4, 3, 200, -0.5);
 
             set_title("Mandelbrot set with external angles");
             bmp_name = "mandel_ext01.bmp";
 
-            compute(3);
+            compute(2);
         }
     }
 };
