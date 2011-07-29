@@ -2,6 +2,8 @@
 #define COLOR_H
 
 #include <cstdlib>
+#include <stdint.h>
+#include <cmath>
 //#include "constants.hpp"
 
 using namespace std;
