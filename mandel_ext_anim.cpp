@@ -120,24 +120,52 @@ protected:
         if (verbosity > 0) cout << endl;
     }
 
+    double fact;
+
     color colormap(cplx z, double off) {
         if (isnan(z.imag())) {
             return RGBcolor(0.0, 0.0, 0.0);
         }
 
-        int n = ceil(z.real());
-        double r = n - z.real();
-        r = n - r/safety;
-        z.real() = log(r); 
-        //z.real() = pow(2, -n)*logb;
-
         if (!isnan(theta)) z.imag() -= theta;
 
-        double fact = rays/(2*M_PI);
-        z.imag() = floor(fact*(z.imag()-off))/fact + off;
-
-        return basic_colormap(exp(z));
+        double alpha = floor(fact*(z.imag()-off))/fact + off;
+        return HSLcolor(alpha, 1, z.real());
     }
+
+    void preprocess_data() {
+        int num_samples = dw*dh;
+        int percent_complete = 0;
+
+        if (verbosity > 0) cout << "0% complete ";
+
+        for (int y = 0; y < dh; ++y) {
+            for (int x = 0; x < dw; ++x) {
+                cplx z = index(x, y);
+
+                if (isnan(z.imag())) continue;
+
+                int n = ceil(z.real());
+                double r = n - z.real();
+                r = n - r/safety;
+                index(x, y).real() = acos((r-1)/(r+1))/M_PI;
+
+                int i = y*dw + x;
+                int new_percent = 100*(i + 1)/num_samples;
+                if (new_percent > percent_complete) {
+                    percent_complete = new_percent;
+                    if (verbosity > 0) {
+                        cout << "\r" << percent_complete 
+                             << "% complete.";
+                        cout.flush();
+                    }
+                }
+            }
+        }
+
+        if (verbosity > 0) cout << endl;
+    }
+
 
     void render_frame(double off) {
         int num_pixels = screen->w * screen->h;
@@ -214,7 +242,12 @@ protected:
             int x = k % (dw);
             int y = k / (dw);
 
-            if (data[k].real() == HUGE_VAL) break;
+            if (data[k].real() == HUGE_VAL) {
+                if (verbosity > 0) {
+                    cout << "\n(skipping interior points)" << endl;
+                }
+                break;
+            }
 
             int n = ceil(data[k].real());
 
@@ -270,11 +303,18 @@ protected:
         data.resize(w*h);
     }
 
-    void compute(int num_rays, int num_frames, int subsample_res = 1) {
+    void compute(int num_rays, double fps, int loop_ms,
+                 int subsample_res = 1)
+    {
         assert( screen_init );
+
+        int num_frames = fps*loop_ms/1000;
+        delay_ms = 1000/fps;
 
         sres = subsample_res;
         rays = num_rays;
+
+        fact = rays/(2*M_PI);
 
         init_data(screen->w*sres, screen->h*sres);
 
@@ -289,6 +329,12 @@ protected:
         }
 
         fix_angles();
+
+        if (verbosity > 0) {
+            cout << "Preprocessing for rendering..." << endl;
+        }
+
+        preprocess_data();
 
         for (int k = 0; k < num_frames; ++k) {
             add_frame();
@@ -309,7 +355,6 @@ protected:
         theta = th;
 
         verbosity = 1;
-        delay_ms = 50;
 
         safety = 0.3;
     }
@@ -343,11 +388,11 @@ public:
     mandel_ext_anim(bool b = true) {
         if (b) {
             init(300, 10, 1e-10, NAN);
-            set_window(4, 3, 300, -0.5);
+            set_window(4, 3, 200, -0.5);
 
             set_title("Mandelbrot set with external angles");
 
-            compute(24, 20, 3);
+            compute(24, 60, 1000, 3);
         }
     }
 };
