@@ -1,6 +1,7 @@
 #include "sdl_anim.hpp"
 #include "complex_plot.hpp"
 #include "angle_tools.hpp"
+#include "percent_counter.hpp"
 
 #include <vector>
 #include <iostream>
@@ -95,29 +96,16 @@ protected:
     }
 
     void init_samples() {
-        int num_samples = dw * dh;
-        int percent_complete = 0;
-
-        if (verbosity > 0) cout << "0% complete.";
+        percent_counter pc(dw * dh);
+        if (verbosity > 0) pc.start();
 
         for (int y = 0; y < dh; ++y) {
             for (int x = 0; x < dw; ++x) {
                 index(x, y) = transform(to_plane_sub(x, y));
-                int i = y*dw + x;
-
-                int new_percent = 100*(i + 1)/num_samples;
-                if (new_percent > percent_complete) {
-                    percent_complete = new_percent;
-                    if (verbosity > 0) {
-                        cout << "\r" << percent_complete 
-                             << "% complete.";
-                        cout.flush();
-                    }
-                }
+                
+                if (verbosity > 0) pc.count();
             }
         }
-
-        if (verbosity > 0) cout << endl;
     }
 
     double fact;
@@ -134,10 +122,9 @@ protected:
     }
 
     void preprocess_data() {
-        int num_samples = dw*dh;
-        int percent_complete = 0;
+        percent_counter pc(dw * dh);
 
-        if (verbosity > 0) cout << "0% complete ";
+        if (verbosity > 0) pc.start();
 
         for (int y = 0; y < dh; ++y) {
             for (int x = 0; x < dw; ++x) {
@@ -150,26 +137,13 @@ protected:
                 r = n - r/safety;
                 index(x, y).real() = acos((r-1)/(r+1))/M_PI;
 
-                int i = y*dw + x;
-                int new_percent = 100*(i + 1)/num_samples;
-                if (new_percent > percent_complete) {
-                    percent_complete = new_percent;
-                    if (verbosity > 0) {
-                        cout << "\r" << percent_complete 
-                             << "% complete.";
-                        cout.flush();
-                    }
-                }
+                if (verbosity > 0) pc.count();
             }
         }
-
-        if (verbosity > 0) cout << endl;
     }
 
-
     void render_frame(double off) {
-        int num_pixels = screen->w * screen->h;
-        int percent_complete = 0;
+        percent_counter pc(screen->w * screen->h);
 
         int f = frames.size()-1;
 
@@ -192,20 +166,9 @@ protected:
                 cval /= sres * sres;
                 set_frame_pixel(f, x, y, cval);
 
-                int i = y*screen->w + x;
-                int new_percent = 100*(i + 1)/num_pixels;
-                if (new_percent > percent_complete) {
-                    percent_complete = new_percent;
-                    if (verbosity > 0) {
-                        cout << "\r" << percent_complete 
-                             << "% complete.";
-                        cout.flush();
-                    }
-                }
+                if (verbosity > 0) pc.count();
             }
         }
-
-        if (verbosity > 0) cout << endl;
 
         update_frame(f);
     }
@@ -233,8 +196,8 @@ protected:
         sort(sample_list.begin(), sample_list.end(),
              sample_comp(*this));
 
-        int percent_complete = 0;
-        if (verbosity > 0) std::cout << "0% complete.";
+        percent_counter pc(num_samples);
+        if (verbosity > 0) pc.start();
 
         for (int i = 0; i < num_samples; ++i) {
             int k = sample_list[i];
@@ -282,19 +245,9 @@ protected:
 
                 sample_fixed[k] = true;
             }
-            
-            int new_percent = 100*(i + 1)/num_samples;
-            if (new_percent > percent_complete) {
-                percent_complete = new_percent;
-                if (verbosity > 0) {
-                    cout << "\r" << percent_complete 
-                         << "% complete.";
-                    cout.flush();
-                }
-            }
+
+            if (verbosity > 0) pc.count();
         }
-        
-        if (verbosity > 0) cout << endl;
     } 
 
     void init_data(int w, int h) {

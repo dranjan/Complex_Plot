@@ -1,6 +1,7 @@
 #include "sdlm-v01.hpp"
 #include "complex_plot.hpp"
 #include "angle_tools.hpp"
+#include "percent_counter.hpp"
 
 #include <vector>
 #include <iostream>
@@ -164,8 +165,7 @@ protected:
         sort(sample_list.begin(), sample_list.end(),
              sample_comp(*this));
 
-        int percent_complete = 0;
-        if (verbosity > 0) std::cout << "0% complete.";
+        percent_counter pc(num_samples);
 
         for (int i = 0; i < num_samples; ++i) {
             int k = sample_list[i];
@@ -173,7 +173,12 @@ protected:
             int x = k % (dw);
             int y = k / (dw);
 
-            if (data[k].real() == HUGE_VAL) break;
+            if (data[k].real() == HUGE_VAL) {
+                if (verbosity > 0) {
+                    cout << "\n(skipping interior points)" << endl;
+                }
+                break;
+            }
 
             int n = ceil(data[k].real());
 
@@ -215,18 +220,8 @@ protected:
                 sample_fixed[k] = true;
             }
             
-            int new_percent = 100*(i + 1)/num_samples;
-            if (new_percent > percent_complete) {
-                percent_complete = new_percent;
-                if (verbosity > 0) {
-                    cout << "\r" << percent_complete 
-                         << "% complete.";
-                    cout.flush();
-                }
-            }
+            if (verbosity > 0) pc.count();
         }
-        
-        if (verbosity > 0) cout << endl;
 
         fixed = true;
     } 

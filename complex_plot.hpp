@@ -10,6 +10,7 @@
 
 #include "sdlm-v01.hpp"
 #include "color.hpp"
+#include "percent_counter.hpp"
 
 #include "SDL/SDL.h"
 
@@ -150,16 +151,12 @@ protected:
     int plot() {
         assert( screen_init );
 
-        int num_pixels = screen->w * screen->h;
-        int percent_complete = 0;
-
-        if (verbosity > 0) std::cout << "0% complete.";
+        percent_counter pc(screen->h * screen->w);
+        if (verbosity > 0) pc.start();
 
         for (int y = 0; y < screen->h; ++y) {
             for (int x = 0; x < screen->w; ++x) {
                 if (!working) return 1;
-
-                int pixel = y*screen->w + x;
 
                 color cval = RGBcolor(0, 0, 0);
 
@@ -175,21 +172,11 @@ protected:
                 cval /= sres * sres;
                 set_pixel(x, y, cval.r, cval.g, cval.b);
 
-                int new_percent = 100*(pixel + 1)/num_pixels;
-                if (new_percent > percent_complete) {
-                    percent_complete = new_percent;
-                    if (verbosity > 0) {
-                        std::cout << "\r" << percent_complete 
-                                  << "% complete.";
-                        std::cout.flush();
-                    }
-                }
+                if (verbosity > 0) pc.count();
             }
         }
 
         working = false;
-
-        if (verbosity > 0) std::cout << std::endl;
 
         update();
 
