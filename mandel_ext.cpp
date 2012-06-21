@@ -196,14 +196,8 @@ protected:
                     if (!sample_fixed.at(j)) continue;
 
                     double phi = data[j].imag();
-                    //double r = pow(2, n);
-                    //if (r > INT_MAX) {
-                    //    data[k].imag() = data[j].imag();
-                    //} else {
-                        data[k].imag() = div_angle(data[k].imag(), 
-                                                   pow(2, n), phi);
-
-                    //}
+                    data[k].imag() = div_angle(data[k].imag(), 
+                                               pow(2, n), phi);
 
                     sample_fixed[k] = true;
                     break;

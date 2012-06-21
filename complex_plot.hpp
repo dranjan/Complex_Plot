@@ -211,6 +211,14 @@ protected:
             replot();
         }
     }
+    
+    /* Override this (and set verbosity > 1) to cause additional
+     * data to be displayed by clicking on a point. By default, the
+     * value of the "transform" method is displayed.
+     */
+    virtual void point_dump(cplx c) {
+        std::cout << transform(c);
+    }
 
     virtual void mousebuttondown_event(SDL_MouseButtonEvent & button) {
         Uint16 x = button.x;
@@ -227,7 +235,11 @@ protected:
             replot();
         } else {
             if (verbosity > 0) {
-                std::cout << c << std::endl;
+                std::cout << c;
+                if (verbosity > 1) {
+                    point_dump(c);
+                }
+                std::cout << std::endl;
             }
         }
     }
