@@ -105,7 +105,7 @@ public:
     /* This will not update the screen; call update() after
      * all changes have been made 
      */
-    void set_rect(int x0, int y0, int w, int h,
+    void set_rect(Sint16 x0, Sint16 y0, Uint16 w, Uint16 h,
                   double r, double g, double b)
     {
         assert( screen_init );

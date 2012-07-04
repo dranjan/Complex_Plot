@@ -148,7 +148,7 @@ protected:
     int sres;
     bool working;
 
-    int plot() {
+    virtual int plot() {
         assert( screen_init );
 
         percent_counter pc(screen->h * screen->w);
