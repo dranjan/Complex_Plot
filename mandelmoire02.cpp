@@ -4,7 +4,7 @@
 
 using namespace std;
 
-class mandelmoire01 : public complex_plot_var01 {
+class mandelmoire02 : public complex_plot_var01 {
 protected:
     int max_iter;
 
@@ -12,19 +12,19 @@ protected:
         cplx w(0.0);
         int k;
 
-        for (k = 0; k < max_iter; ++k) {
+        double d = 0;
+        for (k = 0; k <= max_iter; ++k) {
             w = w*w + z;
-            if (abs(w) > 1e6) break;
+            d = abs(w);
+            if (d > 1e6) {
+                return HSVcolor(log(d)*pow(2,max_iter-k), 1.0, 1.0);
+            }
         }
-        if (k == max_iter) --k;
-        
-        double t = repdbl(arg(w), max_iter-k);
-        
-        return HSVcolor(t, 1.0, 1.0);
+        return RGBcolor(0, 0, 0);
     }
 
 public:
-    mandelmoire01(int n) : complex_plot_var01(8.0, 8.0, 128, 0.0),
+    mandelmoire02(int n) : complex_plot_var01(8.0, 8.0, 128, 0.0),
                            max_iter(n)
     {
         set_title("Moire pattern & approximation to Mandelbrot set");
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     if (argc >= 2) r = strtol(argv[1], 0, 10);
 
     try {
-        mandelmoire01 M(r);
+        mandelmoire02 M(r);
     } catch (std::string s) {
         cerr << "Error: " << s << endl;
         return 1;
