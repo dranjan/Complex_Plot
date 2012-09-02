@@ -5,6 +5,7 @@
 #include <complex>
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 #include <utility>
 #include <cstdlib>
 
@@ -217,7 +218,7 @@ protected:
      * value of the "transform" method is displayed.
      */
     virtual void point_dump(cplx c) {
-        std::cout << transform(c);
+        std::cout << std::setprecision(16) << transform(c);
     }
 
     virtual void mousebuttondown_event(SDL_MouseButtonEvent & button) {
@@ -229,13 +230,15 @@ protected:
         if (button.button == SDL_BUTTON_MIDDLE) {
             recenter(3/res, c);
             if (verbosity > 0) {
-                std::cout << "Recentering: " << c
-                          << ", res. = " << res << std::endl;
+                std::cout << "Recentering: " 
+                          << std::setprecision(16) << c
+                          << ", res. = " 
+                          << std::setprecision(6) << res << std::endl;
             }
             replot();
         } else {
             if (verbosity > 0) {
-                std::cout << c;
+                std::cout << std::setprecision(16) << c;
                 if (verbosity > 1) {
                     point_dump(c);
                 }

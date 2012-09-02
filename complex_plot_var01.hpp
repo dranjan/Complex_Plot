@@ -59,8 +59,9 @@ public:
     complex_plot_var01(double a, double b, double r, cplx c) :
         complex_plot(a, b, r, c)
     { }
-};
 
-//public:
+    complex_plot_var01() : complex_plot()
+    { }
+};
 
 #endif

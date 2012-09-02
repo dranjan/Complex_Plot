@@ -11,16 +11,43 @@ protected:
     color color_func(cplx z) {
         cplx w(0.0);
         int k;
-
         double d = 0;
-        for (k = 0; k <= max_iter; ++k) {
+
+        for (k = 0; k < max_iter; ++k) {
             w = w*w + z;
             d = abs(w);
-            if (d > 1e6) {
-                return HSVcolor(log(d)*pow(2,max_iter-k), 1.0, 1.0);
-            }
+            if (d > 1e6) break;
         }
-        return RGBcolor(0, 0, 0);
+        if (k == max_iter) --k;
+        
+        double t = repdbl(arg(w), max_iter-k);
+        double u = log(d)*pow(2, max_iter-k);
+        
+        if (d < 0) {
+            return RGBcolor(0, 0, 0);
+        } else {
+            return HSVcolor(t, 1.0, 1.0)/(1+log2(1+u)/10);
+        }
+    }
+
+    virtual void keydown_event(SDL_KeyboardEvent & key) {
+        SDLKey sym = key.keysym.sym;
+        if (sym == SDLK_ESCAPE) {
+            quit_event_loop = true;
+        } else if (sym == SDLK_s) {
+            dump_window(bmp_name.c_str());
+        } else if (sym == SDLK_o) {
+            recenter(1/(3.0*res), 
+                     ul + res*cplx((screen->w + 1)/2.0,
+                                  -(screen->h + 1)/2.0));
+            replot();
+        } else if (sym == SDLK_UP) {
+            ++max_iter;
+            replot();
+        } else if (sym == SDLK_DOWN) {
+            --max_iter;
+            replot();
+        }
     }
 
 public:
