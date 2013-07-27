@@ -1,6 +1,8 @@
 env = DefaultEnvironment(CXX='g++', CC='gcc',
                          CCFLAGS='-ansi -Wall -pedantic -O3 -mtune=native',
-                         LIBS=['m', 'SDL'])
+                         LIBS=['m'])
+
+env.ParseConfig('pkg-config --cflags --libs sdl')
 
 ex = ARGUMENTS.get('ex', '00')
 cpl_env = env.Clone(CPPDEFINES={'EXAMPLE' : 'example_' + ex})
