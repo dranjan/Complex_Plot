@@ -57,7 +57,7 @@ public:
     mandel_sine(bool b = true) {
         if (b) {
             init(200, 10, 1e-8);
-            set_window(2, 2, 512);
+            set_window(2, 2, 800);
             set_title("Sine Mandelbrot");
             bmp_name = "mandel_sine01.bmp";
             run(3);
