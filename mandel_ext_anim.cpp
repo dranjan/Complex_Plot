@@ -229,7 +229,7 @@ protected:
 
                     double phi = data[j].imag();
                     data[k].imag() = div_angle(data[k].imag(), 
-                                               pow(2, n), phi);
+                                               pow(2.0, n), phi);
 
                     sample_fixed[k] = true;
                     break;
@@ -240,7 +240,7 @@ protected:
             if (!sample_fixed[k]) {
                 double phi = arg(to_plane_sub(x, y));
                 double psi = div_angle(data[k].imag(),
-                                       pow(2, n), phi);
+                                       pow(2.0, n), phi);
                 data[k].imag() = psi;
 
                 sample_fixed[k] = true;

@@ -107,7 +107,7 @@ protected:
     }
 
     cplx transform(cplx z) {
-        z /= std::pow(2,n_);
+        z /= std::pow(2.0,n_);
         z *= z*c_;
         for (int k = 0; k < n_; ++k) {
             cplx z1 = R(z);

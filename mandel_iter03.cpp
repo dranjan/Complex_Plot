@@ -20,7 +20,7 @@ protected:
                 break;
             }
         }
-        return z/w*pow(2,k);
+        return z/w*pow(2.0,k);
     }
 
     void init(int num_iter) {

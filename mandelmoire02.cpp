@@ -21,7 +21,7 @@ protected:
         if (k == max_iter) --k;
         
         double t = repdbl(arg(w), max_iter-k);
-        double u = log(d)*pow(2, max_iter-k);
+        double u = log(d)*pow(2.0, max_iter-k);
         
         if (d < 0) {
             return RGBcolor(0, 0, 0);
