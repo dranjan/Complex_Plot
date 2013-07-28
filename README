@@ -1,3 +1,6 @@
+(This code is released under the GNU General Public License (GPLv3).
+See the file "COPYING" for details.)
+
 This is an attempt to develop reusable tools for rendering planar "color
 maps" (functions that assign to each point on the plane a color)
 generally and those related to transformations of the complex plane
