@@ -341,7 +341,7 @@ public:
     mandel_ext_anim(bool b = true) {
         if (b) {
             init(300, 10, 1e-10, NAN);
-            set_window(4, 3, 200, -0.5);
+            set_window(4, 3, 400, -0.5);
 
             set_title("Mandelbrot set with external angles");
 
