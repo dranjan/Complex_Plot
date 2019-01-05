@@ -55,8 +55,7 @@ protected:
         ptol = tol;
         this->c = c;
 
-        cplx d = 1.0/(c*c);
-        bailout2 = sqrt(0.5*(cosh(2*bailout)*abs(d) - real(d)));
+        bailout2 = cosh(bailout)/abs(c);
     }
 
 public:
