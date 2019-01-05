@@ -69,7 +69,7 @@ public:
             init(200, 10, 1e-8, cplx(0.5, 0.3));
             set_window(30, 20, 80);
             set_title("Sine Julia fractal");
-            bmp_name = "sine_julia01.bmp";
+            bmp_name = "sine_julia02.bmp";
             run(3);
         }
     }
